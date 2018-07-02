@@ -26,46 +26,63 @@ data class TargetLinkInfo(val url: String, val id: Int, val clazz: String, val j
 object WebMagicDBService {
 
     init {
-        Database.connect("jdbc:sqlite:sche.dbservice", driver = "org.sqlite.JDBC")
+        Database.connect("jdbc:sqlite:sche.db", driver = "org.sqlite.JDBC")
         TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
-        createMissingTable(TargetLinks)
-        createMissingTable(Properties)
+        transaction {
+            dbCreateMissingTable(TargetLinks)
+            dbCreateMissingTable(Properties)
+        }
     }
 
-    fun createMissingTable(table: Table) {
-        transaction {
-            createMissingTablesAndColumns(table)
-        }
+    fun dbInit() {
+        // do nothing, just make sure init block is executed
+    }
+
+    fun dbCreateMissingTable(table: Table) {
+        createMissingTablesAndColumns(table)
     }
 
     fun dbAddTargetLink(link: TargetLink): Int {
-        return transaction {
-            TargetLinks.insertAndGetId {
-                it[url] = link.url
-                it[clazz] = link.pageProc.javaClass.name
-                it[json] = link.pageProc.toJson()
-            }.value
-        }
+        return TargetLinks.insertAndGetId {
+            it[url] = link.url
+            it[clazz] = link.pageProc.javaClass.name
+            it[json] = link.pageProc.toJson()
+        }.value
     }
 
     fun dbRemoveTargetLink(id: Int) {
-        transaction {
-            TargetLinks.deleteWhere { TargetLinks.id eq id }
-        }
+        TargetLinks.deleteWhere { TargetLinks.id eq id }
     }
 
 
     fun dbAllTargetLinks(): List<TargetLinkInfo> {
-        return transaction {
-            TargetLinks.selectAll().map {
-                TargetLinkInfo(it[TargetLinks.url], it[TargetLinks.id].value, it[TargetLinks.clazz], it[TargetLinks.json])
-            }
+        return TargetLinks.selectAll().map {
+            TargetLinkInfo(it[TargetLinks.url], it[TargetLinks.id].value, it[TargetLinks.clazz], it[TargetLinks.json])
         }
     }
 
     fun dbDropTargetLinks() {
-        transaction {
-            TargetLinks.deleteAll()
+        TargetLinks.deleteAll()
+    }
+
+    private val IS_TASK_FINISHED = "is.task.finished"
+
+    fun isTaskFinished(): Boolean {
+        return transaction {
+            val query = Properties.select { Properties.key eq IS_TASK_FINISHED }
+            if (query.empty()) {
+                false
+            } else {
+                query.first()[Properties.value] == "true"
+            }
+        }
+    }
+
+    fun dbSetTaskFinished(status: Boolean) {
+        Properties.deleteWhere { Properties.key eq IS_TASK_FINISHED }
+        Properties.insert {
+            it[key] = IS_TASK_FINISHED
+            it[value] = if (status) "true" else "false"
         }
     }
 }

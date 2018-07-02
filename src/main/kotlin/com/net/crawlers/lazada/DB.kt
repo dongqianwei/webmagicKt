@@ -22,7 +22,10 @@ object ProductInfos : Table() {
 
 object LazadaDB {
     fun tableInit() {
-        WebMagicDBService.createMissingTable(ProductInfos)
+        WebMagicDBService.dbInit()
+        transaction {
+            WebMagicDBService.dbCreateMissingTable(ProductInfos)
+        }
     }
 
     fun dbAddProduct(product: ProductInfo) {

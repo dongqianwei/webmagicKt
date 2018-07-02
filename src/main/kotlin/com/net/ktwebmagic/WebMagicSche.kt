@@ -3,6 +3,7 @@ package com.net.ktwebmagic
 import com.net.ktwebmagic.dbservice.TargetLinkInfo
 import com.net.ktwebmagic.dbservice.WebMagicDBService
 import org.apache.logging.log4j.LogManager
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.openqa.selenium.firefox.FirefoxDriver
 import org.openqa.selenium.firefox.FirefoxOptions
 import org.openqa.selenium.remote.RemoteWebDriver
@@ -20,13 +21,14 @@ object WebMagicSche {
 
     init {
         System.setProperty("webdriver.gecko.driver", "D:/geckodriver.exe")
-        System.setProperty(FirefoxDriver.SystemProperty.DRIVER_USE_MARIONETTE,"true")
+        System.setProperty(FirefoxDriver.SystemProperty.DRIVER_USE_MARIONETTE, "true")
         System.setProperty(FirefoxDriver.SystemProperty.BROWSER_LOGFILE, "selenium.log")
         val options = FirefoxOptions()
         options.setHeadless(true)
         options.addPreference("permissions.default.image", 2)
         options.addPreference("permissions.default.stylesheet", 2)
         this.driver = FirefoxDriver(options)
+        WebMagicDBService.dbInit()
     }
 
     fun restart(linksInfo: List<TargetLinkInfo>) {
@@ -38,23 +40,34 @@ object WebMagicSche {
         doTasks()
     }
 
-    fun start(vararg links: TargetLink, needRestart: Boolean = true) {
-        logger.info("web magic START...")
-        //test if need restart
-        if (needRestart) {
-            val linksInfo = WebMagicDBService.dbAllTargetLinks()
-            if (!linksInfo.isEmpty()) {
-                logger.info("last task is not finished, restart task now...")
-                restart(linksInfo)
-                return
+    fun start(startLink: TargetLink, forceRestart: Boolean = false) {
+        if (forceRestart) {
+            logger.info("FORCE RESTART, data may be duplicated..")
+            // 清空
+            transaction {
+                WebMagicDBService.dbDropTargetLinks()
+                WebMagicDBService.dbSetTaskFinished(false)
             }
         }
-        // 清空
-        WebMagicDBService.dbDropTargetLinks()
 
-        for (lk in links) {
-            addTargetLink(lk)
+        // check if last task is already finished
+        if (WebMagicDBService.isTaskFinished()) {
+            logger.info("Task already finished, if you want a new task, please remove the DB file first...")
+            return
         }
+
+        logger.info("web magic START...")
+        //check if need continue
+        val linksInfo = transaction {
+            WebMagicDBService.dbAllTargetLinks()
+        }
+        if (!linksInfo.isEmpty()) {
+            logger.info("last task is not finished, restart task now...")
+            restart(linksInfo)
+            return
+        }
+
+        addTargetLink(startLink)
         doTasks()
         logger.info("web magic END...")
     }
@@ -72,36 +85,41 @@ object WebMagicSche {
                         }
                         link.pageProc.process(driver!!)
                         break
-                    }
-                    catch (ex: Exception) {
+                    } catch (ex: Exception) {
                         if (tryTimes == 0) {
                             logger.warn("failed to process, try again..")
-                            tryTimes ++
+                            tryTimes++
                             continue
                         }
 
                         throw ex
                     }
                 }
-                WebMagicDBService.dbRemoveTargetLink(link.id)
+                transaction {
+                    WebMagicDBService.dbRemoveTargetLink(link.id)
+                    // 队列为空，设置任务状态为完成
+                    if (targetLinkQueue.isEmpty()) {
+                        WebMagicDBService.dbSetTaskFinished(true)
+                    }
+                }
             }
-        }
-        catch(ex: Exception) {
+        } catch (ex: Exception) {
             logger.error("url: ${driver!!.currentUrl}", ex)
-        }
-        finally {
+        } finally {
             driver!!.close()
         }
     }
 
-    fun <T: IPageProc>registerJsonCons(jsonBuilder: IJsonBuilder<T>) {
+    fun <T : IPageProc> registerJsonCons(jsonBuilder: IJsonBuilder<T>) {
         pageProcCons.put(jsonBuilder.className(), jsonBuilder.jsonCons())
     }
 
     fun addTargetLink(link: TargetLink) {
         targetLinkQueue.add(link)
         // 数据库持久化
-        val id = WebMagicDBService.dbAddTargetLink(link)
+        val id = transaction {
+            WebMagicDBService.dbAddTargetLink(link)
+        }
         link.id = id
     }
 }
