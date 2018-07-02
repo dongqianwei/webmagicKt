@@ -1,4 +1,4 @@
-package com.net.ktwebmagic.db
+package com.net.ktwebmagic.dbservice
 
 import com.net.ktwebmagic.TargetLink
 import org.jetbrains.exposed.dao.IntIdTable
@@ -15,25 +15,27 @@ object TargetLinks : IntIdTable() {
     val json: Column<String> = text("json")
 }
 
+object Properties : Table() {
+    val key: Column<String> = text("key").primaryKey()
+    val value: Column<String> = text("value")
+}
+
 data class TargetLinkInfo(val url: String, val id: Int, val clazz: String, val json: String)
 
 
 object WebMagicDBService {
 
     init {
-        Database.connect("jdbc:sqlite:sche.db", driver = "org.sqlite.JDBC")
+        Database.connect("jdbc:sqlite:sche.dbservice", driver = "org.sqlite.JDBC")
         TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
         createMissingTable(TargetLinks)
+        createMissingTable(Properties)
     }
 
     fun createMissingTable(table: Table) {
         transaction {
             createMissingTablesAndColumns(table)
         }
-    }
-
-    fun initDB() {
-        // do nothing, make sure object is load and init is executed
     }
 
     fun dbAddTargetLink(link: TargetLink): Int {

@@ -1,6 +1,7 @@
 package com.net.ktwebmagic
 
-import com.net.ktwebmagic.db.*
+import com.net.ktwebmagic.dbservice.TargetLinkInfo
+import com.net.ktwebmagic.dbservice.WebMagicDBService
 import org.apache.logging.log4j.LogManager
 import org.openqa.selenium.firefox.FirefoxDriver
 import org.openqa.selenium.firefox.FirefoxOptions
@@ -20,13 +21,12 @@ object WebMagicSche {
     init {
         System.setProperty("webdriver.gecko.driver", "D:/geckodriver.exe")
         System.setProperty(FirefoxDriver.SystemProperty.DRIVER_USE_MARIONETTE,"true")
-        System.setProperty(FirefoxDriver.SystemProperty.BROWSER_LOGFILE,"D:\\logs.txt")
+        System.setProperty(FirefoxDriver.SystemProperty.BROWSER_LOGFILE, "selenium.log")
         val options = FirefoxOptions()
         options.setHeadless(true)
         options.addPreference("permissions.default.image", 2)
         options.addPreference("permissions.default.stylesheet", 2)
         this.driver = FirefoxDriver(options)
-        WebMagicDBService.initDB()
     }
 
     fun restart(linksInfo: List<TargetLinkInfo>) {
@@ -56,6 +56,7 @@ object WebMagicSche {
             addTargetLink(lk)
         }
         doTasks()
+        logger.info("web magic END...")
     }
 
     private fun doTasks() {

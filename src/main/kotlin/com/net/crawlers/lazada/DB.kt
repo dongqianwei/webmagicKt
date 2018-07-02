@@ -1,7 +1,10 @@
 package com.net.crawlers.lazada
 
-import com.net.ktwebmagic.db.WebMagicDBService
-import org.jetbrains.exposed.sql.*
+import com.net.ktwebmagic.dbservice.WebMagicDBService
+import org.jetbrains.exposed.sql.Column
+import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.sql.deleteAll
+import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 
 object ProductInfos : Table() {
