@@ -1,20 +1,17 @@
 package com.net.crawlers.demo
 
 import com.google.gson.Gson
-import com.net.ktwebmagic.IJsonBuilder
+import com.net.ktwebmagic.JsonBuilder
 import com.net.ktwebmagic.PageProc
 import com.net.ktwebmagic.TargetLink
 import com.net.ktwebmagic.WebMagicSche
 import org.openqa.selenium.By
 import org.openqa.selenium.remote.RemoteWebDriver
 
-object DemoPageProcJsonBuilder : IJsonBuilder<DemoPageProc> {
+object DemoPageProcJsonBuilder : JsonBuilder<DemoPageProc>(DemoPageProc::class.java) {
     override fun jsonCons(): (String) -> DemoPageProc {
         return { DemoPageProc }
     }
-
-    override fun className() = DemoPageProc::class.java.name
-
 }
 
 object DemoPageProc : PageProc() {

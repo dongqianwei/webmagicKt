@@ -1,8 +1,7 @@
 package com.net.crawlers.lazada
 
 import com.google.gson.Gson
-import com.net.ktwebmagic.IJsonBuilder
-import com.net.ktwebmagic.IPageProc
+import com.net.ktwebmagic.JsonBuilder
 import com.net.ktwebmagic.PageProc
 import com.net.ktwebmagic.TargetLink
 import org.openqa.selenium.By
@@ -10,8 +9,7 @@ import org.openqa.selenium.remote.RemoteWebDriver
 import org.openqa.selenium.support.ui.ExpectedConditions
 import org.openqa.selenium.support.ui.WebDriverWait
 
-object MainPageProcJsonBuilder: IJsonBuilder<MainPageProc> {
-    override fun className() = MainPageProc::class.java.name
+object MainPageProcJsonBuilder : JsonBuilder<MainPageProc>(MainPageProc::class.java) {
 
     override fun jsonCons(): (String) -> MainPageProc {
         return {

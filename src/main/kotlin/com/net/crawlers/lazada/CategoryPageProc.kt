@@ -2,8 +2,7 @@ package com.net.crawlers.lazada
 
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.net.ktwebmagic.IJsonBuilder
-import com.net.ktwebmagic.IPageProc
+import com.net.ktwebmagic.JsonBuilder
 import com.net.ktwebmagic.PageProc
 import com.net.ktwebmagic.TargetLink
 import org.apache.logging.log4j.LogManager
@@ -12,7 +11,7 @@ import org.openqa.selenium.remote.RemoteWebDriver
 
 private val logger = LogManager.getLogger(CategoryPageProc::class.java)
 
-object CategoryPageProcJsonBuilder: IJsonBuilder<CategoryPageProc> {
+object CategoryPageProcJsonBuilder : JsonBuilder<CategoryPageProc>(CategoryPageProc::class.java) {
     override fun jsonCons(): (String) -> CategoryPageProc {
         return {
             val gson = Gson()
@@ -21,8 +20,6 @@ object CategoryPageProcJsonBuilder: IJsonBuilder<CategoryPageProc> {
             CategoryPageProc(categories)
         }
     }
-
-    override fun className() = CategoryPageProc::class.java.name
 
 }
 

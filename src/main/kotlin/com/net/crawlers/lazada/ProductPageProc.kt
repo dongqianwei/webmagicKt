@@ -2,11 +2,9 @@ package com.net.crawlers.lazada
 
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.net.ktwebmagic.IJsonBuilder
+import com.net.ktwebmagic.JsonBuilder
 import com.net.ktwebmagic.PageProc
 import org.apache.logging.log4j.LogManager
-import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.Table
 import org.openqa.selenium.By
 import org.openqa.selenium.remote.RemoteWebDriver
 
@@ -14,8 +12,7 @@ private val logger = LogManager.getLogger(ProductPageProc::class.java)
 
 data class ProductInfo(val cate1: String,val cate2: String,val cate3: String, val title: String, val ratingNum: Int, val QANum: Int, val price: String, val SKU: String, val score: String, val url: String)
 
-object ProductPageProcJsonBuilder: IJsonBuilder<ProductPageProc> {
-    override fun className() = ProductPageProc::class.java.name
+object ProductPageProcJsonBuilder : JsonBuilder<ProductPageProc>(ProductPageProc::class.java) {
 
     override fun jsonCons(): (String) -> ProductPageProc {
         return {

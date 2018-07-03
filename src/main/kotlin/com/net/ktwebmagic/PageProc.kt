@@ -17,6 +17,10 @@ interface IJsonBuilder<T: IPageProc> {
     fun className(): String
 }
 
+abstract class JsonBuilder<T : IPageProc>(val clazz: Class<T>) : IJsonBuilder<T> {
+    override fun className() = clazz.name
+}
+
 abstract class PageProc: IPageProc {
 
     val gson = Gson()
