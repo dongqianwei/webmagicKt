@@ -1,7 +1,7 @@
 package com.net.crawlers.lazada
 
-import com.net.ktwebmagic.WebMagicSche
 import com.net.ktwebmagic.TargetLink
+import com.net.ktwebmagic.WebMagicSche
 
 fun main(args: Array<String>) {
     LazadaDB.tableInit()
