@@ -2,6 +2,7 @@ package com.net.crawlers.lazada
 
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.net.ktwebmagic.IPageProc
 import com.net.ktwebmagic.JsonBuilder
 import com.net.ktwebmagic.PageProc
 import com.net.ktwebmagic.TargetLink
@@ -12,6 +13,12 @@ import org.openqa.selenium.remote.RemoteWebDriver
 private val logger = LogManager.getLogger(CategoryPageProc::class.java)
 
 object CategoryPageProcJsonBuilder : JsonBuilder<CategoryPageProc>(CategoryPageProc::class.java) {
+
+    override fun toJson(t: IPageProc): String {
+        val pg = t as CategoryPageProc
+        return gson.toJson(pg.categories)
+    }
+
     override fun jsonCons(): (String) -> CategoryPageProc {
         return {
             val gson = Gson()
@@ -24,10 +31,6 @@ object CategoryPageProcJsonBuilder : JsonBuilder<CategoryPageProc>(CategoryPageP
 }
 
 class CategoryPageProc(val categories: List<String>): PageProc() {
-
-    override fun toJson(): String {
-        return gson.toJson(categories)
-    }
 
     override fun process(driver: RemoteWebDriver) {
         logger.info("process categories: $categories")

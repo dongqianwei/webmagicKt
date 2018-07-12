@@ -1,5 +1,6 @@
 package com.net.ktwebmagic.dbservice
 
+import com.net.ktwebmagic.PageProcJsonBuilder
 import com.net.ktwebmagic.TargetLink
 import org.jetbrains.exposed.dao.IntIdTable
 import org.jetbrains.exposed.sql.*
@@ -46,7 +47,7 @@ object WebMagicDBService {
         return TargetLinks.insertAndGetId {
             it[url] = link.url
             it[clazz] = link.pageProc.javaClass.name
-            it[json] = link.pageProc.toJson()
+            it[json] = PageProcJsonBuilder.toJson(link.pageProc)
         }.value
     }
 
