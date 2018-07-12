@@ -8,14 +8,12 @@ import org.openqa.selenium.firefox.FirefoxDriver
 import org.openqa.selenium.firefox.FirefoxOptions
 import org.openqa.selenium.remote.RemoteWebDriver
 import java.util.*
-import kotlin.collections.HashMap
+import java.util.concurrent.TimeUnit
 
 object WebMagicSche {
 
     var driver: RemoteWebDriver? = null
     val targetLinkQueue = LinkedList<TargetLink>()
-    // 反序列化注册
-    val pageProcCons = HashMap<String, (String) -> IPageProc>()
 
     val logger = LogManager.getLogger(this.javaClass)
 
@@ -24,16 +22,17 @@ object WebMagicSche {
         System.setProperty(FirefoxDriver.SystemProperty.DRIVER_USE_MARIONETTE, "true")
         System.setProperty(FirefoxDriver.SystemProperty.BROWSER_LOGFILE, "selenium.log")
         val options = FirefoxOptions()
-        options.setHeadless(true)
+        /*options.setHeadless(true)
         options.addPreference("permissions.default.image", 2)
-        options.addPreference("permissions.default.stylesheet", 2)
+        options.addPreference("permissions.default.stylesheet", 2)*/
         this.driver = FirefoxDriver(options)
+        this.driver!!.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS)
         WebMagicDBService.dbInit()
     }
 
     fun restart(linksInfo: List<TargetLinkInfo>) {
         for (info in linksInfo) {
-            val pageProc = pageProcCons.get(info.clazz)!!.invoke(info.json)
+            val pageProc = PageProcJsonBuilder.fromJson(info.clazz, info.json)
             val targetLink = TargetLink(info.url, pageProc, info.id)
             targetLinkQueue.add(targetLink)
         }
@@ -76,10 +75,11 @@ object WebMagicSche {
         try {
             while (!targetLinkQueue.isEmpty()) {
                 val link = targetLinkQueue.pop()
-                driver!!.get(link.url)
                 var tryTimes = 0
                 while (true) {
                     try {
+                        logger.info("get url: ${link.url}")
+                        driver!!.get(link.url)
                         if (tryTimes > 0) {
                             Thread.sleep(5000)
                         }
@@ -110,9 +110,6 @@ object WebMagicSche {
         }
     }
 
-    fun <T : IPageProc> registerJsonCons(jsonBuilder: IJsonBuilder<T>) {
-        pageProcCons.put(jsonBuilder.className(), jsonBuilder.jsonCons())
-    }
 
     fun addTargetLink(link: TargetLink) {
         targetLinkQueue.add(link)
@@ -121,5 +118,9 @@ object WebMagicSche {
             WebMagicDBService.dbAddTargetLink(link)
         }
         link.id = id
+    }
+
+    fun registerJsonBuilder(builder: IJsonBuilder) {
+        PageProcJsonBuilder.registerJsonBuilder(builder)
     }
 }

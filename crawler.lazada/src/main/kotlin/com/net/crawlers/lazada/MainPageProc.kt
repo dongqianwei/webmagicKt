@@ -1,6 +1,7 @@
 package com.net.crawlers.lazada
 
 import com.google.gson.Gson
+import com.net.ktwebmagic.IPageProc
 import com.net.ktwebmagic.JsonBuilder
 import com.net.ktwebmagic.PageProc
 import com.net.ktwebmagic.TargetLink
@@ -18,13 +19,14 @@ object MainPageProcJsonBuilder : JsonBuilder<MainPageProc>(MainPageProc::class.j
             MainPageProc(startCategory)
         }
     }
+
+    override fun toJson(t: IPageProc): String {
+        val pageProc = t as MainPageProc
+        return gson.toJson(pageProc.startCategory)
+    }
 }
 
 class MainPageProc(val startCategory: String): PageProc() {
-
-    override fun toJson(): String {
-        return gson.toJson(startCategory)
-    }
 
     override fun process(driver: RemoteWebDriver) {
         val wait = WebDriverWait(driver, 10)

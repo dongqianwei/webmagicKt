@@ -2,6 +2,7 @@ package com.net.crawlers.lazada
 
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.net.ktwebmagic.IPageProc
 import com.net.ktwebmagic.JsonBuilder
 import com.net.ktwebmagic.PageProc
 import org.apache.logging.log4j.LogManager
@@ -14,6 +15,12 @@ data class ProductInfo(val cate1: String,val cate2: String,val cate3: String, va
 
 object ProductPageProcJsonBuilder : JsonBuilder<ProductPageProc>(ProductPageProc::class.java) {
 
+    override fun toJson(t: IPageProc): String {
+        val pg = t as ProductPageProc
+        return gson.toJson(pg.categorys)
+    }
+
+
     override fun jsonCons(): (String) -> ProductPageProc {
         return {
             val gson = Gson()
@@ -25,10 +32,6 @@ object ProductPageProcJsonBuilder : JsonBuilder<ProductPageProc>(ProductPageProc
 }
 
 class ProductPageProc(val categorys: List<String>): PageProc() {
-    override fun toJson(): String {
-        return gson.toJson(categorys)
-    }
-
     override fun process(driver: RemoteWebDriver) {
         // test if product unavailable
         val errorInfoDIVs = driver.findElementsByXPath("//div[@class='error-info']")
