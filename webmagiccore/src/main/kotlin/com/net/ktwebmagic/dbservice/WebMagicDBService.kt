@@ -1,6 +1,6 @@
 package com.net.ktwebmagic.dbservice
 
-import com.net.ktwebmagic.PageProcJsonBuilder
+import com.google.gson.Gson
 import com.net.ktwebmagic.TargetLink
 import org.jetbrains.exposed.dao.IntIdTable
 import org.jetbrains.exposed.sql.*
@@ -26,6 +26,8 @@ data class TargetLinkInfo(val url: String, val id: Int, val clazz: String, val j
 
 object WebMagicDBService {
 
+    val gson = Gson()
+
     init {
         Database.connect("jdbc:sqlite:sche.db", driver = "org.sqlite.JDBC")
         TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
@@ -47,7 +49,7 @@ object WebMagicDBService {
         return TargetLinks.insertAndGetId {
             it[url] = link.url
             it[clazz] = link.pageProc.javaClass.name
-            it[json] = PageProcJsonBuilder.toJson(link.pageProc)
+            it[json] = gson.toJson(link.pageProc)
         }.value
     }
 

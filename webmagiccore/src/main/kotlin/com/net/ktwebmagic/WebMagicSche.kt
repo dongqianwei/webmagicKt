@@ -1,5 +1,6 @@
 package com.net.ktwebmagic
 
+import com.google.gson.Gson
 import com.net.ktwebmagic.dbservice.TargetLinkInfo
 import com.net.ktwebmagic.dbservice.WebMagicDBService
 import org.apache.logging.log4j.LogManager
@@ -8,12 +9,13 @@ import org.openqa.selenium.firefox.FirefoxDriver
 import org.openqa.selenium.firefox.FirefoxOptions
 import org.openqa.selenium.remote.RemoteWebDriver
 import java.util.*
-import java.util.concurrent.TimeUnit
 
 object WebMagicSche {
 
     var driver: RemoteWebDriver? = null
     val targetLinkQueue = LinkedList<TargetLink>()
+
+    val gson = Gson()
 
     val logger = LogManager.getLogger(this.javaClass)
 
@@ -22,18 +24,18 @@ object WebMagicSche {
         System.setProperty(FirefoxDriver.SystemProperty.DRIVER_USE_MARIONETTE, "true")
         System.setProperty(FirefoxDriver.SystemProperty.BROWSER_LOGFILE, "selenium.log")
         val options = FirefoxOptions()
-        /*options.setHeadless(true)
-        options.addPreference("permissions.default.image", 2)
-        options.addPreference("permissions.default.stylesheet", 2)*/
+        options.setHeadless(false)
+        //options.addPreference("permissions.default.image", 2)
+        options.addPreference("permissions.default.stylesheet", 2)
         this.driver = FirefoxDriver(options)
-        this.driver!!.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS)
+        //this.driver!!.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS)
         WebMagicDBService.dbInit()
     }
 
     fun restart(linksInfo: List<TargetLinkInfo>) {
         for (info in linksInfo) {
-            val pageProc = PageProcJsonBuilder.fromJson(info.clazz, info.json)
-            val targetLink = TargetLink(info.url, pageProc, info.id)
+            val pageProc = gson.fromJson(info.json, Class.forName(info.clazz))
+            val targetLink = TargetLink(info.url, pageProc as IPageProc, info.id)
             targetLinkQueue.add(targetLink)
         }
         doTasks()
@@ -79,10 +81,10 @@ object WebMagicSche {
                 while (true) {
                     try {
                         logger.info("get url: ${link.url}")
-                        driver!!.get(link.url)
                         if (tryTimes > 0) {
                             Thread.sleep(5000)
                         }
+                        driver!!.get(link.url)
                         link.pageProc.process(driver!!)
                         break
                     } catch (ex: Exception) {
@@ -118,9 +120,5 @@ object WebMagicSche {
             WebMagicDBService.dbAddTargetLink(link)
         }
         link.id = id
-    }
-
-    fun registerJsonBuilder(builder: IJsonBuilder) {
-        PageProcJsonBuilder.registerJsonBuilder(builder)
     }
 }

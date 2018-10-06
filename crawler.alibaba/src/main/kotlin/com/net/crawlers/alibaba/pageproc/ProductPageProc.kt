@@ -1,24 +1,25 @@
 package com.net.crawlers.alibaba.pageproc
 
-import com.net.ktwebmagic.IPageProc
-import com.net.ktwebmagic.JsonBuilder
 import com.net.ktwebmagic.PageProc
 import com.net.ktwebmagic.TargetLink
+import org.apache.logging.log4j.LogManager
 import org.openqa.selenium.By
 import org.openqa.selenium.remote.RemoteWebDriver
-
-object ProductPageProcJsonBuilder : JsonBuilder<ProductPageProc>(ProductPageProc::class.java) {
-    override fun jsonCons(): (String) -> IPageProc {
-        return { ProductPageProc }
-    }
-}
+import org.openqa.selenium.support.ui.ExpectedConditions
+import org.openqa.selenium.support.ui.WebDriverWait
 
 object ProductPageProc : PageProc() {
+
+    private val logger = LogManager.getLogger(this.javaClass)
+
     override fun process(driver: RemoteWebDriver) {
-        val div = driver.findElementByXPath("//div[@class='tab-nav-container']")
-        val imgs = div.findElements(By.xpath("//img"))
-        for (img in imgs) {
-            addTargetLink(TargetLink(img.getAttribute("src"), ImageDownloadProc))
+        val wait = WebDriverWait(driver, 10)
+        val byXPath = By.xpath("//div[@class='tab-nav-container']/ul")
+        val ul = wait.until(ExpectedConditions.presenceOfElementLocated(byXPath))
+        val LIs = ul.findElements(By.xpath("/li"))
+        for (LI in LIs) {
+            val url = LI.findElement(By.xpath("//img")).getAttribute("src")
+            addTargetLink(TargetLink(url, ImageDownloadProc))
         }
     }
 }

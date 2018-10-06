@@ -1,8 +1,5 @@
 package com.net.crawlers.lazada
 
-import com.google.gson.Gson
-import com.net.ktwebmagic.IPageProc
-import com.net.ktwebmagic.JsonBuilder
 import com.net.ktwebmagic.PageProc
 import com.net.ktwebmagic.TargetLink
 import org.openqa.selenium.By
@@ -10,21 +7,6 @@ import org.openqa.selenium.remote.RemoteWebDriver
 import org.openqa.selenium.support.ui.ExpectedConditions
 import org.openqa.selenium.support.ui.WebDriverWait
 
-object MainPageProcJsonBuilder : JsonBuilder<MainPageProc>(MainPageProc::class.java) {
-
-    override fun jsonCons(): (String) -> MainPageProc {
-        return {
-            val gson = Gson()
-            val startCategory = gson.fromJson(it, String::class.java)
-            MainPageProc(startCategory)
-        }
-    }
-
-    override fun toJson(t: IPageProc): String {
-        val pageProc = t as MainPageProc
-        return gson.toJson(pageProc.startCategory)
-    }
-}
 
 class MainPageProc(val startCategory: String): PageProc() {
 

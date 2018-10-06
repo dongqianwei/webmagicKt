@@ -1,9 +1,5 @@
 package com.net.crawlers.lazada
 
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import com.net.ktwebmagic.IPageProc
-import com.net.ktwebmagic.JsonBuilder
 import com.net.ktwebmagic.PageProc
 import org.apache.logging.log4j.LogManager
 import org.openqa.selenium.By
@@ -13,23 +9,6 @@ private val logger = LogManager.getLogger(ProductPageProc::class.java)
 
 data class ProductInfo(val cate1: String,val cate2: String,val cate3: String, val title: String, val ratingNum: Int, val QANum: Int, val price: String, val SKU: String, val score: String, val url: String)
 
-object ProductPageProcJsonBuilder : JsonBuilder<ProductPageProc>(ProductPageProc::class.java) {
-
-    override fun toJson(t: IPageProc): String {
-        val pg = t as ProductPageProc
-        return gson.toJson(pg.categorys)
-    }
-
-
-    override fun jsonCons(): (String) -> ProductPageProc {
-        return {
-            val gson = Gson()
-            val listType = object : TypeToken<List<String>>() { }.type
-            val categories = gson.fromJson<List<String>>(it, listType)
-            ProductPageProc(categories)
-        }
-    }
-}
 
 class ProductPageProc(val categorys: List<String>): PageProc() {
     override fun process(driver: RemoteWebDriver) {
