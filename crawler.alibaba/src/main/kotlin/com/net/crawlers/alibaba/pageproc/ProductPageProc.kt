@@ -2,6 +2,7 @@ package com.net.crawlers.alibaba.pageproc
 
 import com.net.ktwebmagic.PageProc
 import com.net.ktwebmagic.TargetLink
+import com.net.ktwebmagic.common.ImageDownloadProc
 import org.apache.logging.log4j.LogManager
 import org.openqa.selenium.By
 import org.openqa.selenium.remote.RemoteWebDriver

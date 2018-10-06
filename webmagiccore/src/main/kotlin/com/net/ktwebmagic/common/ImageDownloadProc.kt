@@ -1,4 +1,4 @@
-package com.net.crawlers.alibaba.pageproc
+package com.net.ktwebmagic.common
 
 import com.net.ktwebmagic.Downloader
 import com.net.ktwebmagic.PageProc
@@ -18,7 +18,7 @@ class ImageDownloadProc(val url: String) : PageProc() {
     private val logger = LogManager.getLogger(this.javaClass)
 
     override fun process(driver: RemoteWebDriver) {
-        logger.info("download img: {}", url)
+        logger.info("downloading img: {}", url)
         Downloader.download(URL(url), Paths.get("D:/imgs").resolve(URL(url).file))
     }
 }

@@ -12,6 +12,8 @@
         <module>webmagiccore</module>
         <module>crawler.lazada</module>
         <module>crawler.alibaba</module>
+        <module>crawler.lazada.imgdownloader</module>
+        <module>crawler.fetchimgs</module>
     </modules>
     <properties>
         <kotlin.version>1.2.51</kotlin.version>
