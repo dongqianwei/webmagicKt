@@ -20,13 +20,13 @@ object WebMagicSche {
     val logger = LogManager.getLogger(this.javaClass)
 
     init {
-        System.setProperty("webdriver.gecko.driver", "D:/geckodriver.exe")
+        System.setProperty("webdriver.gecko.driver", WebMagicConfig.geckoDriverPath)
         System.setProperty(FirefoxDriver.SystemProperty.DRIVER_USE_MARIONETTE, "true")
         System.setProperty(FirefoxDriver.SystemProperty.BROWSER_LOGFILE, "selenium.log")
         val options = FirefoxOptions()
-        //options.setHeadless(true)
-        //options.addPreference("permissions.default.image", 2)
-        //options.addPreference("permissions.default.stylesheet", 2)
+        options.setHeadless(WebMagicConfig.isBrowserHeadless)
+        if (!WebMagicConfig.isBrowserLoadImage) options.addPreference("permissions.default.image", 2)
+        if (!WebMagicConfig.isBrowserLoadStyleSheet) options.addPreference("permissions.default.stylesheet", 2)
         this.driver = FirefoxDriver(options)
         //this.driver!!.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS)
         WebMagicDBService.dbInit()
