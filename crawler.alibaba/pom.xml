@@ -30,7 +30,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>com.net.crawlers.alibaba.AppKt</mainClass>
+                            <mainClass>com.net.crawlers.alibaba1688.AppKt</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

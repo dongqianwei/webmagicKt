@@ -1,4 +1,4 @@
-package com.net.crawlers.alibaba.pageproc
+package com.net.crawlers.alibaba1688.pageproc
 
 import com.net.ktwebmagic.PageProc
 import com.net.ktwebmagic.TargetLink

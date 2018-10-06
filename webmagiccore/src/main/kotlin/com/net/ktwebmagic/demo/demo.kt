@@ -19,5 +19,5 @@ object DemoPageProc : PageProc() {
 
 fun main(args: Array<String>) {
     val sche = WebMagicSche
-    sche.start(TargetLink("https://news.ycombinator.com/", DemoPageProc), true)
+    sche.start(TargetLink("https://news.ycombinator.com/", DemoPageProc), forceRestart = true)
 }

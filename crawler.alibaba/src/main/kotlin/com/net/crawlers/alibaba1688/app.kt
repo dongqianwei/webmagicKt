@@ -1,6 +1,6 @@
-package com.net.crawlers.alibaba
+package com.net.crawlers.alibaba1688
 
-import com.net.crawlers.alibaba.pageproc.ProductPageProc
+import com.net.crawlers.alibaba1688.pageproc.ProductPageProc
 import com.net.ktwebmagic.TargetLink
 import com.net.ktwebmagic.WebMagicSche
 

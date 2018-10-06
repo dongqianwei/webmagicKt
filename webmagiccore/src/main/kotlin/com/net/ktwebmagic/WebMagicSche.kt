@@ -41,7 +41,7 @@ object WebMagicSche {
         doTasks()
     }
 
-    fun start(startLink: TargetLink, forceRestart: Boolean = false) {
+    fun start(vararg startLinks: TargetLink, forceRestart: Boolean = false) {
         if (forceRestart) {
             logger.info("FORCE RESTART, data may be duplicated..")
             // 清空
@@ -68,7 +68,9 @@ object WebMagicSche {
             return
         }
 
-        addTargetLink(startLink)
+        for (link in startLinks) {
+            addTargetLink(link)
+        }
         doTasks()
         logger.info("web magic END...")
     }
