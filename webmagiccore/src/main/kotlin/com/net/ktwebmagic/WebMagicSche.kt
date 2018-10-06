@@ -24,9 +24,9 @@ object WebMagicSche {
         System.setProperty(FirefoxDriver.SystemProperty.DRIVER_USE_MARIONETTE, "true")
         System.setProperty(FirefoxDriver.SystemProperty.BROWSER_LOGFILE, "selenium.log")
         val options = FirefoxOptions()
-        options.setHeadless(false)
+        //options.setHeadless(true)
         //options.addPreference("permissions.default.image", 2)
-        options.addPreference("permissions.default.stylesheet", 2)
+        //options.addPreference("permissions.default.stylesheet", 2)
         this.driver = FirefoxDriver(options)
         //this.driver!!.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS)
         WebMagicDBService.dbInit()
@@ -84,7 +84,9 @@ object WebMagicSche {
                         if (tryTimes > 0) {
                             Thread.sleep(5000)
                         }
-                        driver!!.get(link.url)
+                        if (link.pageProc.needBrowser) {
+                            driver!!.get(link.url)
+                        }
                         link.pageProc.process(driver!!)
                         break
                     } catch (ex: Exception) {

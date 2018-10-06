@@ -16,10 +16,10 @@ object ProductPageProc : PageProc() {
         val wait = WebDriverWait(driver, 10)
         val byXPath = By.xpath("//div[@class='tab-nav-container']/ul")
         val ul = wait.until(ExpectedConditions.presenceOfElementLocated(byXPath))
-        val LIs = ul.findElements(By.xpath("/li"))
+        val LIs = ul.findElements(By.xpath("li"))
         for (LI in LIs) {
-            val url = LI.findElement(By.xpath("//img")).getAttribute("src")
-            addTargetLink(TargetLink(url, ImageDownloadProc))
+            val url = LI.findElement(By.xpath("div/a/img")).getAttribute("src")
+            addTargetLink(TargetLink(url, ImageDownloadProc(url)))
         }
     }
 }

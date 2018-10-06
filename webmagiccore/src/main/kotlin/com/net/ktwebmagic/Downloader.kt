@@ -17,6 +17,9 @@ object Downloader {
         httpclient.use {
             val get = HttpGet(url.toURI()) // we're using GET but it could be via POST as well
             return httpclient.execute(get) {
+                if (!Files.isDirectory(dstFile.parent)) {
+                    Files.createDirectories(dstFile.parent)
+                }
                 Files.copy(it.entity.content, dstFile)
                 dstFile
             }

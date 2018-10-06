@@ -1,6 +1,7 @@
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import org.junit.jupiter.api.Test
+import java.nio.file.Paths
 
 class GsonTest  {
 
@@ -13,5 +14,11 @@ class GsonTest  {
         val listType = object : TypeToken<List<String>>() { }.type
         val arr = gson.fromJson<List<String>>(json, listType)
         println(arr)
+    }
+
+    @Test
+    fun test002() {
+        val p = Paths.get("D:/a/b/c")
+        println(p.parent)
     }
 }
