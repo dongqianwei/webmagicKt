@@ -1,14 +1,22 @@
 package com.net.crawlers.alibaba1688
 
+import com.net.crawlers.ProductImgInfo
+import com.net.crawlers.db.ImgDB
 import com.net.ktwebmagic.PageProc
 import com.net.ktwebmagic.TargetLink
 import com.net.ktwebmagic.common.ImageDownloadProc
 import com.net.ktwebmagic.waitByXpath
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.openqa.selenium.By
 import org.openqa.selenium.remote.RemoteWebDriver
 
 class Alibaba1688ProductPageProc(val category: String, val imgPath: String) : PageProc() {
     override fun process(driver: RemoteWebDriver) {
+        // get title
+        val title = driver.findElementByXPath("//div[@id='mod-detail-title']/h1").text
+        transaction {
+            ImgDB.dbAddProduct(ProductImgInfo(category, title, driver.currentUrl, imgPath))
+        }
         driver.executeScript("window.scrollBy(0,10000)")
         val UL = driver.waitByXpath("//div[@class='tab-content-container']/ul", 10)
         val productIMGs = UL.findElements(By.ByXPath("li/div/a/img"))

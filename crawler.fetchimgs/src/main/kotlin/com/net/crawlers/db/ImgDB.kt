@@ -11,6 +11,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 object ProductInfoTable : Table() {
     val category: Column<String> = text("category")
     val title: Column<String> = text("title")
+    val url: Column<String> = text("url")
     val imgLocation: Column<String> = text("imgLocation")
     //val price: Column<String> = text("price")
     //val description: Column<String> = text("description")
@@ -32,6 +33,7 @@ object ImgDB {
                 it[category] = product.category
                 it[title] = product.title
                 it[imgLocation] = product.imgLocation
+                it[url] = product.url
             }
         }
     }
