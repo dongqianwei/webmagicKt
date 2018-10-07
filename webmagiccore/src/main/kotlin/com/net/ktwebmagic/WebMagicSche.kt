@@ -9,11 +9,17 @@ import org.openqa.selenium.firefox.FirefoxDriver
 import org.openqa.selenium.firefox.FirefoxOptions
 import org.openqa.selenium.remote.RemoteWebDriver
 import java.util.*
+import java.util.concurrent.Executors
+import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.TimeUnit
 
 object WebMagicSche {
 
     var driver: RemoteWebDriver? = null
-    val targetLinkQueue = LinkedList<TargetLink>()
+    private val browserTargetLinkQueue = LinkedList<TargetLink>()
+    private val nonBrowserTargetLinkQueue = LinkedBlockingQueue<TargetLink>()
+
+    private val executor = Executors.newFixedThreadPool(5)
 
     val gson = Gson()
 
@@ -36,9 +42,14 @@ object WebMagicSche {
         for (info in linksInfo) {
             val pageProc = gson.fromJson(info.json, Class.forName(info.clazz))
             val targetLink = TargetLink(info.url, pageProc as IPageProc, info.id)
-            targetLinkQueue.add(targetLink)
+            if (targetLink.pageProc.needBrowser) {
+                browserTargetLinkQueue.add(targetLink)
+            } else {
+                nonBrowserTargetLinkQueue.add(targetLink)
+            }
         }
-        doTasks()
+        schedulerNonBrowserTasks()
+        schedulerBrowserTasks()
     }
 
     fun start(vararg startLinks: TargetLink, forceRestart: Boolean = false) {
@@ -71,14 +82,37 @@ object WebMagicSche {
         for (link in startLinks) {
             addTargetLink(link)
         }
-        doTasks()
+        schedulerNonBrowserTasks()
+        schedulerBrowserTasks()
+        executor.awaitTermination(10, TimeUnit.DAYS)
         logger.info("web magic END...")
     }
 
-    private fun doTasks() {
+    private fun schedulerNonBrowserTasks() {
+        executor.execute {
+            while (true) {
+                // 执行nonBrowserTargetLinkQueue中的任务
+                val targetLink = nonBrowserTargetLinkQueue.poll(5, TimeUnit.SECONDS)
+                if (targetLink != null) {
+                    executor.execute {
+                        targetLink.pageProc.process()
+                        removeFinishedTask(targetLink)
+                    }
+                } else {
+                    if (nonBrowserTargetLinkQueue.isEmpty() && browserTargetLinkQueue.isEmpty()) {
+                        logger.info("Non Browser Task Scheduler finished...")
+                        executor.shutdownNow()
+                        break
+                    }
+                }
+            }
+        }
+    }
+
+    private fun schedulerBrowserTasks() {
         try {
-            while (!targetLinkQueue.isEmpty()) {
-                val link = targetLinkQueue.pop()
+            while (!browserTargetLinkQueue.isEmpty()) {
+                val link = browserTargetLinkQueue.pop()
                 var tryTimes = 0
                 while (true) {
                     try {
@@ -86,9 +120,7 @@ object WebMagicSche {
                         if (tryTimes > 0) {
                             Thread.sleep(5000)
                         }
-                        if (link.pageProc.needBrowser) {
-                            driver!!.get(link.url)
-                        }
+                        driver!!.get(link.url)
                         link.pageProc.process(driver!!)
                         break
                     } catch (ex: Exception) {
@@ -101,13 +133,8 @@ object WebMagicSche {
                         throw ex
                     }
                 }
-                transaction {
-                    WebMagicDBService.dbRemoveTargetLink(link.id)
-                    // 队列为空，设置任务状态为完成
-                    if (targetLinkQueue.isEmpty()) {
-                        WebMagicDBService.dbSetTaskFinished(true)
-                    }
-                }
+
+                removeFinishedTask(link)
             }
         } catch (ex: Exception) {
             logger.error("url: ${driver!!.currentUrl}", ex)
@@ -116,9 +143,23 @@ object WebMagicSche {
         }
     }
 
+    private fun removeFinishedTask(link: TargetLink) {
+        transaction {
+            WebMagicDBService.dbRemoveTargetLink(link.id)
+            // 队列为空，设置任务状态为完成
+            if (browserTargetLinkQueue.isEmpty() && nonBrowserTargetLinkQueue.isEmpty()) {
+                WebMagicDBService.dbSetTaskFinished(true)
+            }
+        }
+    }
+
 
     fun addTargetLink(link: TargetLink) {
-        targetLinkQueue.add(link)
+        if (link.pageProc.needBrowser) {
+            browserTargetLinkQueue.add(link)
+        } else {
+            nonBrowserTargetLinkQueue.add(link)
+        }
         // 数据库持久化
         val id = transaction {
             WebMagicDBService.dbAddTargetLink(link)

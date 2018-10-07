@@ -3,7 +3,6 @@ package com.net.ktwebmagic.common
 import com.net.ktwebmagic.Downloader
 import com.net.ktwebmagic.PageProc
 import org.apache.logging.log4j.LogManager
-import org.openqa.selenium.remote.RemoteWebDriver
 import java.net.URL
 import java.nio.file.Paths
 
@@ -17,7 +16,7 @@ class ImageDownloadProc(val url: String, val path: String) : PageProc() {
     @Transient
     private val logger = LogManager.getLogger(this.javaClass)
 
-    override fun process(driver: RemoteWebDriver) {
+    override fun process() {
         logger.info("downloading img: {}", url)
         Downloader.download(URL(url), Paths.get(path))
     }
