@@ -8,7 +8,7 @@ import java.net.URL
 import java.nio.file.Paths
 
 
-class ImageDownloadProc(val url: String) : PageProc() {
+class ImageDownloadProc(val url: String, val path: String) : PageProc() {
 
     init {
         needBrowser = false
@@ -19,6 +19,6 @@ class ImageDownloadProc(val url: String) : PageProc() {
 
     override fun process(driver: RemoteWebDriver) {
         logger.info("downloading img: {}", url)
-        Downloader.download(URL(url), Paths.get("D:/imgs").resolve(URL(url).file))
+        Downloader.download(URL(url), Paths.get(path))
     }
 }

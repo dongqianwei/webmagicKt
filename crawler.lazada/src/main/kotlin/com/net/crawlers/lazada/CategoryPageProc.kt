@@ -16,7 +16,7 @@ class CategoryPageProc(val categories: List<String>): PageProc() {
                 .findElements(By.xpath("div"))
         for (productDIV in productDIVs.subList(0, 10)) {
             val productURL = productDIV.findElement(By.xpath("div//a")).getAttribute("href")
-            addTargetLink(TargetLink(productURL, ProductPageProc(categories)))
+            addTargetLink(TargetLink(productURL, LazadaProductPageProc(categories)))
         }
     }
 }

@@ -5,12 +5,12 @@ import org.apache.logging.log4j.LogManager
 import org.openqa.selenium.By
 import org.openqa.selenium.remote.RemoteWebDriver
 
-private val logger = LogManager.getLogger(ProductPageProc::class.java)
+private val logger = LogManager.getLogger(LazadaProductPageProc::class.java)
 
 data class ProductInfo(val cate1: String,val cate2: String,val cate3: String, val title: String, val ratingNum: Int, val QANum: Int, val price: String, val SKU: String, val score: String, val url: String)
 
 
-class ProductPageProc(val categorys: List<String>): PageProc() {
+class LazadaProductPageProc(val categorys: List<String>) : PageProc() {
     override fun process(driver: RemoteWebDriver) {
         // test if product unavailable
         val errorInfoDIVs = driver.findElementsByXPath("//div[@class='error-info']")

@@ -1,8 +1,9 @@
 package com.net.crawlers
 
 import au.com.bytecode.opencsv.CSVReader
-import com.net.crawlers.alibaba1688.ProductPageProc1688
-import com.net.crawlers.lazada.ProductPageProcLazada
+import com.net.crawlers.alibaba1688.Alibaba1688ProductPageProc
+import com.net.crawlers.amazon.AmazonUSProductPageProc
+import com.net.crawlers.db.ImgDB
 import com.net.ktwebmagic.PageProc
 import com.net.ktwebmagic.TargetLink
 import com.net.ktwebmagic.WebMagicSche
@@ -16,10 +17,11 @@ fun main(args: Array<String>) {
     for (input in inputList) {
         val category = input[0]
         val url = input[1]
+        val imgPath = UUID.randomUUID().toString()
         var pageProc: PageProc = if (url.contains("1688")) {
-            ProductPageProc1688(category)
-        } else if (url.contains("lazada")) {
-            ProductPageProcLazada(category)
+            Alibaba1688ProductPageProc(category, imgPath)
+        } else if (url.contains("www.amazon.com")) {
+            AmazonUSProductPageProc(category, imgPath)
         } else {
             throw IllegalArgumentException("unknown link type: ${url}")
         }
@@ -27,5 +29,6 @@ fun main(args: Array<String>) {
         targetLinks.add(TargetLink(url, pageProc))
     }
 
+    ImgDB.tableInit()
     WebMagicSche.start(*targetLinks.toTypedArray(), forceRestart = true)
 }
