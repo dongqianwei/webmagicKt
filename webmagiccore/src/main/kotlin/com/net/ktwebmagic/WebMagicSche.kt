@@ -136,6 +136,8 @@ object WebMagicSche {
 
                 removeFinishedTask(link)
             }
+
+            logger.info("Browser Task Scheduler finished...")
         } catch (ex: Exception) {
             logger.error("url: ${driver!!.currentUrl}", ex)
         } finally {

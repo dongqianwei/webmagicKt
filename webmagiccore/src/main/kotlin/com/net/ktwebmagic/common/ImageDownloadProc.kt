@@ -17,6 +17,10 @@ class ImageDownloadProc(val url: String, val path: String) : PageProc() {
     private val logger = LogManager.getLogger(this.javaClass)
 
     override fun process() {
+        if (url.endsWith("gif")) {
+            logger.warn("gif is not supported")
+            return
+        }
         logger.info("downloading img: {}", url)
         Downloader.download(URL(url), Paths.get(path))
     }
