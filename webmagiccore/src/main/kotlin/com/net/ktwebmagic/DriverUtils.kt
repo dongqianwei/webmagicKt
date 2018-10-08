@@ -8,10 +8,16 @@ import org.openqa.selenium.support.ui.ExpectedConditions
 import org.openqa.selenium.support.ui.WebDriverWait
 
 
-fun WebDriver.waitByXpath(xpath: String, timeout: Long): WebElement {
+fun WebDriver.waitElementByXpath(xpath: String, timeout: Long): WebElement {
     val wait = WebDriverWait(this, timeout)
     val byXPath = By.xpath(xpath)
     return wait.until(ExpectedConditions.presenceOfElementLocated(byXPath))
+}
+
+fun WebDriver.waitElementsByXpath(xpath: String, timeout: Long): List<WebElement> {
+    val wait = WebDriverWait(this, timeout)
+    val byXPath = By.xpath(xpath)
+    return wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(byXPath))
 }
 
 fun WebDriver.moveToElement(element: WebElement) {

@@ -155,15 +155,16 @@ object WebMagicSche {
 
 
     fun addTargetLink(link: TargetLink) {
-        if (link.pageProc.needBrowser) {
-            browserTargetLinkQueue.add(link)
-        } else {
-            nonBrowserTargetLinkQueue.add(link)
-        }
         // 数据库持久化
         val id = transaction {
             WebMagicDBService.dbAddTargetLink(link)
         }
         link.id = id
+
+        if (link.pageProc.needBrowser) {
+            browserTargetLinkQueue.add(link)
+        } else {
+            nonBrowserTargetLinkQueue.add(link)
+        }
     }
 }
