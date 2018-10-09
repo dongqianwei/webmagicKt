@@ -11,7 +11,7 @@ import java.io.FileReader
 import java.util.*
 
 fun main(args: Array<String>) {
-    val csvReader = CSVReader(FileReader("input.csv"))
+    val csvReader = CSVReader(FileReader("input_test.csv"))
     val inputList = csvReader.readAll()
     val targetLinks = ArrayList<TargetLink>()
     for (input in inputList) {

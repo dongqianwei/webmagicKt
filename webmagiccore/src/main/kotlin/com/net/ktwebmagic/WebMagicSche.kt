@@ -85,6 +85,12 @@ object WebMagicSche {
         schedulerNonBrowserTasks()
         schedulerBrowserTasks()
         executor.awaitTermination(10, TimeUnit.DAYS)
+
+        transaction {
+            if (browserTargetLinkQueue.isEmpty() && nonBrowserTargetLinkQueue.isEmpty()) {
+                WebMagicDBService.dbSetTaskFinished(true)
+            }
+        }
         logger.info("web magic END...")
     }
 
@@ -153,10 +159,6 @@ object WebMagicSche {
     private fun removeFinishedTask(link: TargetLink) {
         transaction {
             WebMagicDBService.dbRemoveTargetLink(link.id)
-            // 队列为空，设置任务状态为完成
-            if (browserTargetLinkQueue.isEmpty() && nonBrowserTargetLinkQueue.isEmpty()) {
-                WebMagicDBService.dbSetTaskFinished(true)
-            }
         }
     }
 
