@@ -99,15 +99,18 @@ object WebMagicSche {
                         removeFinishedTask(targetLink)
                     }
                 } else {
-                    if (nonBrowserTargetLinkQueue.isEmpty() && browserTargetLinkQueue.isEmpty()) {
+                    if (isBrowserTasksAllFinished && nonBrowserTargetLinkQueue.isEmpty()) {
                         logger.info("Non Browser Task Scheduler finished...")
-                        executor.shutdownNow()
+                        executor.shutdown()
                         break
                     }
                 }
             }
         }
     }
+
+    @Volatile
+    private var isBrowserTasksAllFinished = false
 
     private fun schedulerBrowserTasks() {
         try {
@@ -136,6 +139,8 @@ object WebMagicSche {
 
                 removeFinishedTask(link)
             }
+
+            isBrowserTasksAllFinished = true;
 
             logger.info("Browser Task Scheduler finished...")
         } catch (ex: Exception) {
